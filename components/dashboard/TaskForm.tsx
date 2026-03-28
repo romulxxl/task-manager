@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Task, TaskFormData, Priority, Status } from '@/lib/types'
 
@@ -45,7 +45,7 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   // Close on Escape
   useEffect(() => {
