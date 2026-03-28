@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Task, View } from '@/lib/types'
 import { isToday, isFuture, parseISO, isValid } from 'date-fns'
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mutationError, setMutationError] = useState<string | null>(null)
   const [user, setUser] = useState<{ email?: string } | null>(null)
 
   // View & filter state
@@ -27,13 +28,13 @@ export default function DashboardPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [deletingTask, setDeletingTask] = useState<Task | null>(null)
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
     })
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [supabase])
 
   const fetchTasks = useCallback(async () => {
     setLoading(true)
@@ -110,7 +111,9 @@ export default function DashboardPage() {
       .from('tasks')
       .update({ status: newStatus })
       .eq('id', task.id)
-    if (!error) {
+    if (error) {
+      setMutationError(error.message)
+    } else {
       setTasks((prev) =>
         prev.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t))
       )
@@ -123,10 +126,12 @@ export default function DashboardPage() {
       .from('tasks')
       .delete()
       .eq('id', deletingTask.id)
-    if (!error) {
+    setDeletingTask(null)
+    if (error) {
+      setMutationError(error.message)
+    } else {
       setTasks((prev) => prev.filter((t) => t.id !== deletingTask.id))
     }
-    setDeletingTask(null)
   }
 
   const handleOpenCreate = () => {
@@ -177,6 +182,21 @@ export default function DashboardPage() {
                 New Task
               </button>
             </div>
+
+            {mutationError && (
+              <div className="flex items-center justify-between gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+                <span>{mutationError}</span>
+                <button
+                  onClick={() => setMutationError(null)}
+                  className="shrink-0 text-red-400 hover:text-red-600"
+                  aria-label="Dismiss error"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
 
             <TaskList
               tasks={filteredTasks}
