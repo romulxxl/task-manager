@@ -1,16 +1,16 @@
 'use client'
 
-import { View } from '@/lib/types'
+import { View, Status, Priority, SortBy } from '@/lib/types'
 import { clsx } from 'clsx'
 
 interface TaskFiltersProps {
-  statusFilter: string
-  priorityFilter: string
-  sortBy: 'due_date' | 'created_at'
+  statusFilter: Status | 'all'
+  priorityFilter: Priority | 'all'
+  sortBy: SortBy
   view: View
-  onStatusFilterChange: (value: string) => void
-  onPriorityFilterChange: (value: string) => void
-  onSortChange: (value: 'due_date' | 'created_at') => void
+  onStatusFilterChange: (value: Status | 'all') => void
+  onPriorityFilterChange: (value: Priority | 'all') => void
+  onSortChange: (value: SortBy) => void
 }
 
 export default function TaskFilters({
@@ -35,7 +35,7 @@ export default function TaskFilters({
           <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</label>
           <select
             value={statusFilter}
-            onChange={(e) => onStatusFilterChange(e.target.value)}
+            onChange={(e) => onStatusFilterChange(e.target.value as Status | 'all')}
             className={selectClass}
           >
             <option value="all">All</option>
@@ -50,7 +50,7 @@ export default function TaskFilters({
         <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Priority</label>
         <select
           value={priorityFilter}
-          onChange={(e) => onPriorityFilterChange(e.target.value)}
+          onChange={(e) => onPriorityFilterChange(e.target.value as Priority | 'all')}
           className={selectClass}
         >
           <option value="all">All</option>
@@ -64,7 +64,7 @@ export default function TaskFilters({
         <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sort</label>
         <select
           value={sortBy}
-          onChange={(e) => onSortChange(e.target.value as 'due_date' | 'created_at')}
+          onChange={(e) => onSortChange(e.target.value as SortBy)}
           className={selectClass}
         >
           <option value="created_at">Date Created</option>

@@ -3,7 +3,7 @@
 import { Task } from '@/lib/types'
 import PriorityBadge from '@/components/ui/PriorityBadge'
 import { format, parseISO, isValid, isPast, isToday } from 'date-fns'
-import { clsx } from 'clsx'
+import { cn } from '@/lib/utils'
 
 interface TaskCardProps {
   task: Task
@@ -36,7 +36,7 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
 
   return (
     <div
-      className={clsx(
+      className={cn(
         'group bg-white rounded-xl border shadow-sm transition-all hover:shadow-md',
         isDone ? 'border-gray-100 opacity-70' : 'border-gray-200'
       )}
@@ -47,7 +47,7 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
           <button
             onClick={() => onToggleComplete(task)}
             aria-label={isDone ? 'Mark incomplete' : 'Mark complete'}
-            className={clsx(
+            className={cn(
               'mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
               isDone
                 ? 'bg-indigo-600 border-indigo-600'
@@ -65,7 +65,7 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <h3
-                className={clsx(
+                className={cn(
                   'text-sm font-medium leading-snug break-words',
                   isDone ? 'line-through text-gray-400' : 'text-gray-900'
                 )}
@@ -82,7 +82,7 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
             <div className="flex items-center gap-3 mt-2 flex-wrap">
               {/* Status badge */}
               <span
-                className={clsx(
+                className={cn(
                   'text-xs font-medium px-2 py-0.5 rounded-md',
                   statusConfig[task.status].className
                 )}
@@ -93,7 +93,7 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
               {/* Due date */}
               {dueDateDisplay && (
                 <span
-                  className={clsx(
+                  className={cn(
                     'inline-flex items-center gap-1 text-xs',
                     dueDateDisplay.overdue
                       ? 'text-red-600 font-medium'
@@ -111,8 +111,8 @@ export default function TaskCard({ task, onEdit, onDelete, onToggleComplete }: T
             </div>
           </div>
 
-          {/* Action buttons (visible on hover) */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          {/* Action buttons — always visible on mobile, hover-only on desktop */}
+          <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
             <button
               onClick={() => onEdit(task)}
               title="Edit task"

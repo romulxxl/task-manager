@@ -1,6 +1,6 @@
 'use client'
 
-import { Task, View } from '@/lib/types'
+import { Task, View, Status, Priority, SortBy } from '@/lib/types'
 import TaskCard from './TaskCard'
 import TaskFilters from './TaskFilters'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
@@ -10,13 +10,13 @@ interface TaskListProps {
   tasks: Task[]
   loading: boolean
   error: string | null
-  statusFilter: string
-  priorityFilter: string
-  sortBy: 'due_date' | 'created_at'
+  statusFilter: Status | 'all'
+  priorityFilter: Priority | 'all'
+  sortBy: SortBy
   view: View
-  onStatusFilterChange: (value: string) => void
-  onPriorityFilterChange: (value: string) => void
-  onSortChange: (value: 'due_date' | 'created_at') => void
+  onStatusFilterChange: (value: Status | 'all') => void
+  onPriorityFilterChange: (value: Priority | 'all') => void
+  onSortChange: (value: SortBy) => void
   onEdit: (task: Task) => void
   onDelete: (task: Task) => void
   onToggleComplete: (task: Task) => void
