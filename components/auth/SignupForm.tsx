@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -12,7 +12,7 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,8 +22,8 @@ export default function SignupForm() {
       setError('Passwords do not match')
       return
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
       return
     }
 
@@ -93,7 +93,7 @@ export default function SignupForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 6 characters"
+          placeholder="At least 8 characters"
           required
           autoComplete="new-password"
           className={inputClass}

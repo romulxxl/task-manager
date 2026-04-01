@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Task, View } from '@/lib/types'
+import { Task, View, SortBy, Status, Priority } from '@/lib/types'
+import type { User } from '@supabase/supabase-js'
 import { isToday, isFuture, parseISO, isValid } from 'date-fns'
 import Header from '@/components/dashboard/Header'
 import Sidebar from '@/components/dashboard/Sidebar'
@@ -15,20 +16,28 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [mutationError, setMutationError] = useState<string | null>(null)
-  const [user, setUser] = useState<{ email?: string } | null>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   // View & filter state
   const [view, setView] = useState<View>('all')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [priorityFilter, setPriorityFilter] = useState('all')
-  const [sortBy, setSortBy] = useState<'due_date' | 'created_at'>('created_at')
+  const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all')
+  const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all')
+  const [sortBy, setSortBy] = useState<SortBy>('created_at')
 
   // Modal state
   const [showForm, setShowForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [deletingTask, setDeletingTask] = useState<Task | null>(null)
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set())
 
   const supabase = useMemo(() => createClient(), [])
+
+  // Auto-clear mutation error after 5s
+  useEffect(() => {
+    if (!mutationError) return
+    const timer = setTimeout(() => setMutationError(null), 5000)
+    return () => clearTimeout(timer)
+  }, [mutationError])
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -44,6 +53,7 @@ export default function DashboardPage() {
         .from('tasks')
         .select('*')
         .order('created_at', { ascending: false })
+        .limit(100)
       if (error) throw error
       setTasks(data ?? [])
     } catch (err: unknown) {
@@ -57,7 +67,13 @@ export default function DashboardPage() {
     fetchTasks()
   }, [fetchTasks])
 
-  const filteredTasks = (() => {
+  // Reset status filter when switching to 'completed' view to avoid silent conflict
+  const handleViewChange = useCallback((newView: View) => {
+    if (newView === 'completed') setStatusFilter('all')
+    setView(newView)
+  }, [])
+
+  const filteredTasks = useMemo(() => {
     let result = [...tasks]
 
     // View filter
@@ -103,34 +119,38 @@ export default function DashboardPage() {
     })
 
     return result
-  })()
+  }, [tasks, view, statusFilter, priorityFilter, sortBy])
 
   const handleToggleComplete = async (task: Task) => {
-    const newStatus = task.status === 'done' ? 'todo' : 'done'
+    if (togglingIds.has(task.id)) return
+    const newStatus: Status = task.status === 'done' ? 'todo' : 'done'
+    setTogglingIds((prev) => { const s = new Set(prev); s.add(task.id); return s })
+    // Optimistic update — revert on failure
+    setTasks((prev) =>
+      prev.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t))
+    )
     const { error } = await supabase
       .from('tasks')
       .update({ status: newStatus })
       .eq('id', task.id)
     if (error) {
-      setMutationError(error.message)
-    } else {
       setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t))
+        prev.map((t) => (t.id === task.id ? { ...t, status: task.status } : t))
       )
+      setMutationError(error.message)
     }
+    setTogglingIds((prev) => { const s = new Set(prev); s.delete(task.id); return s })
   }
 
   const handleDelete = async () => {
     if (!deletingTask) return
-    const { error } = await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', deletingTask.id)
+    const taskId = deletingTask.id
     setDeletingTask(null)
+    const { error } = await supabase.from('tasks').delete().eq('id', taskId)
     if (error) {
       setMutationError(error.message)
     } else {
-      setTasks((prev) => prev.filter((t) => t.id !== deletingTask.id))
+      setTasks((prev) => prev.filter((t) => t.id !== taskId))
     }
   }
 
@@ -158,7 +178,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar view={view} onViewChange={setView} tasks={tasks} />
+      <Sidebar view={view} onViewChange={handleViewChange} tasks={tasks} />
 
       <div className="flex flex-col flex-1 min-w-0">
         <Header user={user} />
@@ -221,6 +241,7 @@ export default function DashboardPage() {
       {showForm && (
         <TaskForm
           task={editingTask}
+          userId={user?.id}
           onClose={handleCloseForm}
           onSuccess={fetchTasks}
         />

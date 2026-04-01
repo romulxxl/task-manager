@@ -6,6 +6,7 @@ import { Task, TaskFormData, Priority, Status } from '@/lib/types'
 
 interface TaskFormProps {
   task?: Task | null
+  userId?: string
   onClose: () => void
   onSuccess: () => void
 }
@@ -30,7 +31,7 @@ const statusOptions: { value: Status; label: string }[] = [
   { value: 'done', label: 'Done' },
 ]
 
-export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
+export default function TaskForm({ task, userId, onClose, onSuccess }: TaskFormProps) {
   const [formData, setFormData] = useState<TaskFormData>(
     task
       ? {
@@ -87,14 +88,13 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
           .eq('id', task.id)
         if (error) throw error
       } else {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-        if (!user) throw new Error('Not authenticated')
+        // Use passed userId if available, otherwise fetch it
+        const uid = userId ?? (await supabase.auth.getUser()).data.user?.id
+        if (!uid) throw new Error('Not authenticated')
 
         const { error } = await supabase
           .from('tasks')
-          .insert({ ...payload, user_id: user.id })
+          .insert({ ...payload, user_id: uid })
         if (error) throw error
       }
 
@@ -103,9 +103,9 @@ export default function TaskForm({ task, onClose, onSuccess }: TaskFormProps) {
     } catch (err: unknown) {
       console.error('Task save error:', err)
       const msg =
-        (err as { message?: string })?.message ||
-        (err as { error_description?: string })?.error_description ||
-        JSON.stringify(err)
+        err instanceof Error
+          ? err.message
+          : (err as { error_description?: string })?.error_description ?? JSON.stringify(err)
       setError(msg)
     } finally {
       setLoading(false)

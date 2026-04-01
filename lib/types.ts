@@ -12,6 +12,7 @@ export interface Task {
   due_date: string | null
   status: Status
   created_at: string
+  updated_at: string | null
 }
 
 export interface TaskFormData {
