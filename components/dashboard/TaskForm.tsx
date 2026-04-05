@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Task, TaskFormData, Priority, Status } from '@/lib/types'
+import { validateTaskTitle, buildTaskPayload } from '@/lib/auth-validation'
 
 interface TaskFormProps {
   task?: Task | null
@@ -64,8 +65,9 @@ export default function TaskForm({ task, userId, onClose, onSuccess }: TaskFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.title.trim()) {
-      setError('Title is required')
+    const titleError = validateTaskTitle(formData.title)
+    if (titleError) {
+      setError(titleError)
       return
     }
 
@@ -73,13 +75,7 @@ export default function TaskForm({ task, userId, onClose, onSuccess }: TaskFormP
     setError(null)
 
     try {
-      const payload = {
-        title: formData.title.trim(),
-        description: formData.description.trim() || null,
-        priority: formData.priority,
-        due_date: formData.due_date || null,
-        status: formData.status,
-      }
+      const payload = buildTaskPayload(formData)
 
       if (task) {
         const { error } = await supabase
