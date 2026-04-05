@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Task, View, SortBy, Status, Priority } from '@/lib/types'
 import type { User } from '@supabase/supabase-js'
-import { isToday, isFuture, parseISO, isValid } from 'date-fns'
+import { applyFilters } from '@/lib/task-filters'
 import Header from '@/components/dashboard/Header'
 import Sidebar from '@/components/dashboard/Sidebar'
 import TaskList from '@/components/dashboard/TaskList'
@@ -73,53 +73,10 @@ export default function DashboardPage() {
     setView(newView)
   }, [])
 
-  const filteredTasks = useMemo(() => {
-    let result = [...tasks]
-
-    // View filter
-    switch (view) {
-      case 'today':
-        result = result.filter((t) => {
-          if (!t.due_date) return false
-          const d = parseISO(t.due_date)
-          return isValid(d) && isToday(d)
-        })
-        break
-      case 'upcoming':
-        result = result.filter((t) => {
-          if (!t.due_date) return false
-          const d = parseISO(t.due_date)
-          return isValid(d) && isFuture(d) && !isToday(d)
-        })
-        break
-      case 'completed':
-        result = result.filter((t) => t.status === 'done')
-        break
-    }
-
-    // Status filter (ignored when view is 'completed')
-    if (statusFilter !== 'all' && view !== 'completed') {
-      result = result.filter((t) => t.status === statusFilter)
-    }
-
-    // Priority filter
-    if (priorityFilter !== 'all') {
-      result = result.filter((t) => t.priority === priorityFilter)
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      if (sortBy === 'due_date') {
-        if (!a.due_date && !b.due_date) return 0
-        if (!a.due_date) return 1
-        if (!b.due_date) return -1
-        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
-      }
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    })
-
-    return result
-  }, [tasks, view, statusFilter, priorityFilter, sortBy])
+  const filteredTasks = useMemo(
+    () => applyFilters(tasks, view, statusFilter, priorityFilter, sortBy),
+    [tasks, view, statusFilter, priorityFilter, sortBy]
+  )
 
   const handleToggleComplete = async (task: Task) => {
     if (togglingIds.has(task.id)) return

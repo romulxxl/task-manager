@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { validateSignupPasswords } from '@/lib/auth-validation'
 
 export default function SignupForm() {
   const [email, setEmail] = useState('')
@@ -18,12 +19,9 @@ export default function SignupForm() {
     e.preventDefault()
     setError(null)
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters')
+    const passwordError = validateSignupPasswords(password, confirmPassword)
+    if (passwordError) {
+      setError(passwordError)
       return
     }
 
