@@ -24,6 +24,9 @@ export default function DashboardPage() {
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all')
   const [sortBy, setSortBy] = useState<SortBy>('created_at')
 
+  // Mobile sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   // Modal state
   const [showForm, setShowForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
@@ -135,23 +138,29 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar view={view} onViewChange={handleViewChange} tasks={tasks} />
+      <Sidebar
+        view={view}
+        onViewChange={handleViewChange}
+        tasks={tasks}
+        isMobileOpen={sidebarOpen}
+        onMobileClose={() => setSidebarOpen(false)}
+      />
 
       <div className="flex flex-col flex-1 min-w-0">
-        <Header user={user} />
+        <Header user={user} onMenuClick={() => setSidebarOpen(true)} />
 
         <main className="flex-1 overflow-y-auto scrollbar-thin">
-          <div className="max-w-4xl mx-auto p-6">
+          <div className="max-w-4xl mx-auto p-4 sm:p-6 pb-24 sm:pb-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{viewTitle[view]}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{viewTitle[view]}</h1>
                 <p className="text-sm text-gray-500 mt-0.5">
                   {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
                 </p>
               </div>
               <button
                 onClick={handleOpenCreate}
-                className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition-colors font-medium text-sm shadow-sm"
+                className="hidden sm:inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition-colors font-medium text-sm shadow-sm"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -194,6 +203,17 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
+
+      {/* FAB — mobile only */}
+      <button
+        onClick={handleOpenCreate}
+        className="fixed bottom-5 right-5 z-20 sm:hidden w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 active:bg-indigo-800 flex items-center justify-center transition-colors"
+        aria-label="New task"
+      >
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
 
       {showForm && (
         <TaskForm

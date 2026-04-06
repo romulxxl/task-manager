@@ -112,7 +112,7 @@ export default function TaskForm({ task, userId, onClose, onSuccess }: TaskFormP
     'w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end md:flex-row md:justify-end md:items-stretch">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
@@ -120,7 +120,12 @@ export default function TaskForm({ task, userId, onClose, onSuccess }: TaskFormP
       />
 
       {/* Panel */}
-      <div className="relative bg-white w-full max-w-md h-full shadow-2xl flex flex-col">
+      <div className="relative bg-white w-full rounded-t-2xl md:rounded-none md:max-w-md md:h-full shadow-2xl flex flex-col max-h-[92vh] md:max-h-none">
+        {/* Drag handle — mobile only */}
+        <div className="flex justify-center pt-3 pb-1 md:hidden">
+          <div className="w-10 h-1 rounded-full bg-gray-300" />
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">
