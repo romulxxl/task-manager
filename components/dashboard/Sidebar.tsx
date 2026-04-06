@@ -8,6 +8,8 @@ interface SidebarProps {
   view: View
   onViewChange: (view: View) => void
   tasks: Task[]
+  isMobileOpen: boolean
+  onMobileClose: () => void
 }
 
 interface NavItem {
@@ -70,11 +72,36 @@ const navItems: NavItem[] = [
   },
 ]
 
-export default function Sidebar({ view, onViewChange, tasks }: SidebarProps) {
+export default function Sidebar({ view, onViewChange, tasks, isMobileOpen, onMobileClose }: SidebarProps) {
   return (
-    <aside className="w-56 bg-slate-900 flex flex-col shrink-0">
-      <div className="flex items-center gap-2 px-4 h-14 border-b border-slate-800">
+    <>
+      {/* Mobile backdrop */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={onMobileClose}
+        />
+      )}
+
+      <aside
+        className={clsx(
+          'bg-slate-900 flex flex-col shrink-0 z-40 transition-transform duration-300 ease-in-out',
+          'fixed inset-y-0 left-0 w-72',
+          'md:relative md:inset-auto md:w-56',
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        )}
+      >
+      <div className="flex items-center justify-between px-4 h-14 border-b border-slate-800">
         <span className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Navigation</span>
+        <button
+          onClick={onMobileClose}
+          className="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors"
+          aria-label="Close menu"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">
@@ -84,7 +111,7 @@ export default function Sidebar({ view, onViewChange, tasks }: SidebarProps) {
           return (
             <button
               key={item.id}
-              onClick={() => onViewChange(item.id)}
+              onClick={() => { onViewChange(item.id); onMobileClose() }}
               className={clsx(
                 'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
                 active
@@ -117,5 +144,6 @@ export default function Sidebar({ view, onViewChange, tasks }: SidebarProps) {
         </div>
       </div>
     </aside>
+    </>
   )
 }
