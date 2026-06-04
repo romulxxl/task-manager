@@ -78,16 +78,17 @@ export default function TaskList({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-3">
-          <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
+          style={{ background: 'rgba(239,68,68,0.15)' }}>
+          <svg className="w-6 h-6 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-1">Failed to load tasks</h3>
-        <p className="text-xs text-gray-500 mb-4 max-w-xs">{error}</p>
+        <h3 className="text-sm font-semibold text-white mb-1">Failed to load tasks</h3>
+        <p className="text-xs text-white/40 mb-4 max-w-xs">{error}</p>
         <button
           onClick={onRetry}
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          className="text-sm font-medium text-emerald-400 hover:text-emerald-300"
         >
           Try again
         </button>

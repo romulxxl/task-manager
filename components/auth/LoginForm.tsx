@@ -49,23 +49,26 @@ export default function LoginForm() {
   }
 
   const inputClass =
-    'w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow'
+    'w-full px-4 py-2.5 text-sm rounded-lg text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-transparent transition-all border border-white/[0.12]'
+
+  const inputStyle = { background: 'rgba(255,255,255,0.08)' }
 
   if (resetSent) {
     return (
       <div className="text-center py-4">
-        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-          <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+          style={{ background: 'rgba(16,185,129,0.2)' }}>
+          <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-base font-semibold text-gray-900 mb-1">Check your email</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          We sent a password reset link to <strong>{email}</strong>.
+        <h3 className="text-base font-semibold text-white mb-1">Check your email</h3>
+        <p className="text-sm text-white/50 mb-4">
+          We sent a password reset link to <strong className="text-white/70">{email}</strong>.
         </p>
         <button
           onClick={() => { setResetMode(false); setResetSent(false) }}
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          className="text-sm font-medium text-emerald-400 hover:text-emerald-300"
         >
           Back to sign in
         </button>
@@ -76,9 +79,9 @@ export default function LoginForm() {
   if (resetMode) {
     return (
       <form onSubmit={handleResetPassword} className="space-y-4">
-        <p className="text-sm text-gray-500">Enter your email and we&apos;ll send you a reset link.</p>
+        <p className="text-sm text-white/50">Enter your email and we&apos;ll send you a reset link.</p>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+          <label className="block text-sm font-medium text-white/70 mb-1.5">Email</label>
           <input
             type="email"
             value={email}
@@ -87,11 +90,13 @@ export default function LoginForm() {
             required
             autoComplete="email"
             className={inputClass}
+            style={inputStyle}
           />
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-2 text-sm text-rose-300 rounded-lg px-3 py-2 border border-rose-500/30"
+            style={{ background: 'rgba(239,68,68,0.12)' }}>
             <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -102,7 +107,8 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
+          className="w-full py-2.5 px-4 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-all shadow-lg"
+          style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -120,7 +126,7 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={() => { setResetMode(false); setError(null) }}
-          className="w-full text-sm text-gray-500 hover:text-gray-700"
+          className="w-full text-sm text-white/40 hover:text-white/60"
         >
           Back to sign in
         </button>
@@ -131,7 +137,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+        <label className="block text-sm font-medium text-white/70 mb-1.5">Email</label>
         <input
           type="email"
           value={email}
@@ -140,16 +146,17 @@ export default function LoginForm() {
           required
           autoComplete="email"
           className={inputClass}
+          style={inputStyle}
         />
       </div>
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-sm font-medium text-white/70">Password</label>
           <button
             type="button"
             onClick={() => { setResetMode(true); setError(null) }}
-            className="text-xs text-indigo-600 hover:text-indigo-500"
+            className="text-xs text-emerald-400 hover:text-emerald-300"
           >
             Forgot password?
           </button>
@@ -162,11 +169,13 @@ export default function LoginForm() {
           required
           autoComplete="current-password"
           className={inputClass}
+          style={inputStyle}
         />
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 text-sm text-rose-300 rounded-lg px-3 py-2 border border-rose-500/30"
+          style={{ background: 'rgba(239,68,68,0.12)' }}>
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -177,7 +186,8 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
+        className="w-full py-2.5 px-4 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-all shadow-lg"
+        style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">

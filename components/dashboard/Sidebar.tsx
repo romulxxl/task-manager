@@ -75,75 +75,78 @@ const navItems: NavItem[] = [
 export default function Sidebar({ view, onViewChange, tasks, isMobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
-      {/* Mobile backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
           onClick={onMobileClose}
         />
       )}
 
       <aside
         className={clsx(
-          'bg-slate-900 flex flex-col shrink-0 z-40 transition-transform duration-300 ease-in-out',
+          'flex flex-col shrink-0 z-40 transition-transform duration-300 ease-in-out border-r border-white/[0.08]',
           'fixed inset-y-0 left-0 w-72',
           'md:relative md:inset-auto md:w-56',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         )}
+        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)' }}
       >
-      <div className="flex items-center justify-between px-4 h-14 border-b border-slate-800">
-        <span className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Navigation</span>
-        <button
-          onClick={onMobileClose}
-          className="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors"
-          aria-label="Close menu"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <nav className="flex-1 p-3 space-y-1">
-        {navItems.map((item) => {
-          const count = item.count(tasks)
-          const active = view === item.id
-          return (
-            <button
-              key={item.id}
-              onClick={() => { onViewChange(item.id); onMobileClose() }}
-              className={clsx(
-                'w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
-                active
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              )}
-            >
-              <span className="flex items-center gap-2.5">
-                {item.icon}
-                {item.label}
-              </span>
-              {count > 0 && (
-                <span
-                  className={clsx(
-                    'text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center',
-                    active ? 'bg-indigo-500 text-white' : 'bg-slate-700 text-slate-300'
-                  )}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </nav>
-
-      <div className="p-4 border-t border-slate-800">
-        <div className="text-xs text-slate-500 text-center">
-          {tasks.length} total task{tasks.length !== 1 ? 's' : ''}
+        <div className="flex items-center justify-between px-4 h-14 border-b border-white/[0.08]">
+          <span className="text-xs font-semibold text-white/40 uppercase tracking-widest">Navigation</span>
+          <button
+            onClick={onMobileClose}
+            className="md:hidden p-1.5 text-white/40 hover:text-white rounded-lg transition-colors"
+            aria-label="Close menu"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-      </div>
-    </aside>
+
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map((item) => {
+            const count = item.count(tasks)
+            const active = view === item.id
+            return (
+              <button
+                key={item.id}
+                onClick={() => { onViewChange(item.id); onMobileClose() }}
+                className={clsx(
+                  'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left',
+                  active
+                    ? 'text-white border border-emerald-500/30'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.06] border border-transparent'
+                )}
+                style={active ? { background: 'rgba(16,185,129,0.15)' } : undefined}
+              >
+                <span className="flex items-center gap-2.5">
+                  <span className={active ? 'text-emerald-400' : ''}>{item.icon}</span>
+                  {item.label}
+                </span>
+                {count > 0 && (
+                  <span
+                    className={clsx(
+                      'text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-[20px] text-center',
+                      active
+                        ? 'bg-emerald-500/30 text-emerald-300'
+                        : 'text-white/40 bg-white/[0.08]'
+                    )}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-white/[0.08]">
+          <div className="text-xs text-white/25 text-center">
+            {tasks.length} total task{tasks.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+      </aside>
     </>
   )
 }

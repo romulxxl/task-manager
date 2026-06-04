@@ -41,7 +41,6 @@ export default function SignupForm() {
       return
     }
 
-    // If email confirmation is disabled, user is auto-confirmed
     if (data.session) {
       router.push('/dashboard')
       router.refresh()
@@ -52,19 +51,22 @@ export default function SignupForm() {
   }
 
   const inputClass =
-    'w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow'
+    'w-full px-4 py-2.5 text-sm rounded-lg text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-transparent transition-all border border-white/[0.12]'
+
+  const inputStyle = { background: 'rgba(255,255,255,0.08)' }
 
   if (success) {
     return (
       <div className="text-center py-4">
-        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-          <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+          style={{ background: 'rgba(16,185,129,0.2)' }}>
+          <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-base font-semibold text-gray-900 mb-1">Check your email</h3>
-        <p className="text-sm text-gray-500">
-          We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
+        <h3 className="text-base font-semibold text-white mb-1">Check your email</h3>
+        <p className="text-sm text-white/50">
+          We sent a confirmation link to <strong className="text-white/70">{email}</strong>. Click it to activate your account.
         </p>
       </div>
     )
@@ -73,7 +75,7 @@ export default function SignupForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+        <label className="block text-sm font-medium text-white/70 mb-1.5">Email</label>
         <input
           type="email"
           value={email}
@@ -82,11 +84,12 @@ export default function SignupForm() {
           required
           autoComplete="email"
           className={inputClass}
+          style={inputStyle}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+        <label className="block text-sm font-medium text-white/70 mb-1.5">Password</label>
         <input
           type="password"
           value={password}
@@ -95,11 +98,12 @@ export default function SignupForm() {
           required
           autoComplete="new-password"
           className={inputClass}
+          style={inputStyle}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+        <label className="block text-sm font-medium text-white/70 mb-1.5">Confirm Password</label>
         <input
           type="password"
           value={confirmPassword}
@@ -108,11 +112,13 @@ export default function SignupForm() {
           required
           autoComplete="new-password"
           className={inputClass}
+          style={inputStyle}
         />
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 text-sm text-rose-300 rounded-lg px-3 py-2 border border-rose-500/30"
+          style={{ background: 'rgba(239,68,68,0.12)' }}>
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -123,7 +129,8 @@ export default function SignupForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm"
+        className="w-full py-2.5 px-4 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-all shadow-lg"
+        style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">

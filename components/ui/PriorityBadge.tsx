@@ -3,15 +3,15 @@ import { Priority } from '@/lib/types'
 const config: Record<Priority, { label: string; className: string }> = {
   low: {
     label: 'Low',
-    className: 'bg-green-100 text-green-700 ring-green-200',
+    className: 'bg-emerald-500/[0.18] text-emerald-300 ring-emerald-500/30',
   },
   medium: {
     label: 'Medium',
-    className: 'bg-yellow-100 text-yellow-700 ring-yellow-200',
+    className: 'bg-amber-500/[0.18] text-amber-300 ring-amber-500/30',
   },
   high: {
     label: 'High',
-    className: 'bg-red-100 text-red-700 ring-red-200',
+    className: 'bg-rose-500/[0.22] text-rose-300 ring-rose-500/35',
   },
 }
 

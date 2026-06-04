@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Task, View, SortBy, Status, Priority } from '@/lib/types'
 import type { User } from '@supabase/supabase-js'
@@ -32,6 +32,8 @@ export default function DashboardPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [deletingTask, setDeletingTask] = useState<Task | null>(null)
   const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set())
+  // Ref so the real-time closure always sees the current set without recreating the channel
+  const togglingIdsRef = useRef<Set<string>>(new Set())
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -70,6 +72,42 @@ export default function DashboardPage() {
     fetchTasks()
   }, [fetchTasks])
 
+  useEffect(() => {
+    if (!user) return
+
+    let isFirstSubscribe = true
+
+    const channel = supabase
+      .channel(`tasks:${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const task = payload.new as Task
+            setTasks((prev) =>
+              prev.some((t) => t.id === task.id) ? prev : [task, ...prev]
+            )
+          } else if (payload.eventType === 'UPDATE') {
+            const updated = payload.new as Task
+            if (togglingIdsRef.current.has(updated.id)) return
+            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = (payload.old as { id: string }).id
+            setTasks((prev) => prev.filter((t) => t.id !== deletedId))
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          if (!isFirstSubscribe) fetchTasks()
+          isFirstSubscribe = false
+        }
+      })
+
+    return () => { supabase.removeChannel(channel) }
+  }, [user, supabase, fetchTasks])
+
   // Reset status filter when switching to 'completed' view to avoid silent conflict
   const handleViewChange = useCallback((newView: View) => {
     if (newView === 'completed') setStatusFilter('all')
@@ -84,7 +122,9 @@ export default function DashboardPage() {
   const handleToggleComplete = async (task: Task) => {
     if (togglingIds.has(task.id)) return
     const newStatus: Status = task.status === 'done' ? 'todo' : 'done'
-    setTogglingIds((prev) => { const s = new Set(prev); s.add(task.id); return s })
+    setTogglingIds((prev) => {
+      const s = new Set(prev); s.add(task.id); togglingIdsRef.current = s; return s
+    })
     // Optimistic update — revert on failure
     setTasks((prev) =>
       prev.map((t) => (t.id === task.id ? { ...t, status: newStatus } : t))
@@ -99,7 +139,9 @@ export default function DashboardPage() {
       )
       setMutationError(error.message)
     }
-    setTogglingIds((prev) => { const s = new Set(prev); s.delete(task.id); return s })
+    setTogglingIds((prev) => {
+      const s = new Set(prev); s.delete(task.id); togglingIdsRef.current = s; return s
+    })
   }
 
   const handleDelete = async () => {
@@ -137,7 +179,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar
         view={view}
         onViewChange={handleViewChange}
@@ -153,14 +195,15 @@ export default function DashboardPage() {
           <div className="max-w-4xl mx-auto p-4 sm:p-6 pb-24 sm:pb-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{viewTitle[view]}</h1>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <h1 className="text-xl sm:text-2xl font-bold text-white">{viewTitle[view]}</h1>
+                <p className="text-sm text-white/40 mt-0.5">
                   {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
                 </p>
               </div>
               <button
                 onClick={handleOpenCreate}
-                className="hidden sm:inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition-colors font-medium text-sm shadow-sm"
+                className="hidden sm:inline-flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-all font-medium text-sm shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -170,11 +213,11 @@ export default function DashboardPage() {
             </div>
 
             {mutationError && (
-              <div className="flex items-center justify-between gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+              <div className="flex items-center justify-between gap-2 text-sm text-rose-300 rounded-lg px-3 py-2 mb-4 border border-rose-500/30" style={{ background: 'rgba(239,68,68,0.12)' }}>
                 <span>{mutationError}</span>
                 <button
                   onClick={() => setMutationError(null)}
-                  className="shrink-0 text-red-400 hover:text-red-600"
+                  className="shrink-0 text-rose-400 hover:text-rose-300"
                   aria-label="Dismiss error"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -207,7 +250,8 @@ export default function DashboardPage() {
       {/* FAB — mobile only */}
       <button
         onClick={handleOpenCreate}
-        className="fixed bottom-5 right-5 z-20 sm:hidden w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 active:bg-indigo-800 flex items-center justify-center transition-colors"
+        className="fixed bottom-5 right-5 z-20 sm:hidden w-14 h-14 text-white rounded-full shadow-lg flex items-center justify-center transition-all"
+        style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}
         aria-label="New task"
       >
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -220,7 +264,7 @@ export default function DashboardPage() {
           task={editingTask}
           userId={user?.id}
           onClose={handleCloseForm}
-          onSuccess={fetchTasks}
+          onSuccess={() => {}}
         />
       )}
 

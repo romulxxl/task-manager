@@ -10,9 +10,12 @@ interface EmptyStateProps {
 export default function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+        style={{ background: 'rgba(255,255,255,0.07)' }}
+      >
         <svg
-          className="w-8 h-8 text-gray-400"
+          className="w-8 h-8 text-white/25"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -25,12 +28,12 @@ export default function EmptyState({ title, description, action }: EmptyStatePro
           />
         </svg>
       </div>
-      <h3 className="text-base font-semibold text-gray-900 mb-1">{title}</h3>
-      <p className="text-sm text-gray-500 max-w-xs">{description}</p>
+      <h3 className="text-base font-semibold text-white/70 mb-1">{title}</h3>
+      <p className="text-sm text-white/35 max-w-xs">{description}</p>
       {action && (
         <button
           onClick={action.onClick}
-          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-400 hover:text-emerald-300"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

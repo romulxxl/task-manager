@@ -23,7 +23,7 @@ export default function TaskFilters({
   onSortChange,
 }: TaskFiltersProps) {
   const selectClass =
-    'text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer'
+    'text-sm rounded-lg px-3 py-1.5 text-white/80 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer border border-white/[0.12] [&>option]:bg-[#1a1040] [&>option]:text-white'
 
   const hasFilters =
     statusFilter !== 'all' || priorityFilter !== 'all' || sortBy !== 'created_at'
@@ -32,11 +32,12 @@ export default function TaskFilters({
     <div className="flex items-center gap-3 flex-wrap mb-4">
       {view !== 'completed' && (
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</label>
+          <label className="text-xs font-medium text-white/35 uppercase tracking-wide">Status</label>
           <select
             value={statusFilter}
             onChange={(e) => onStatusFilterChange(e.target.value as Status | 'all')}
             className={selectClass}
+            style={{ background: 'rgba(255,255,255,0.08)' }}
           >
             <option value="all">All</option>
             <option value="todo">To Do</option>
@@ -47,11 +48,12 @@ export default function TaskFilters({
       )}
 
       <div className="flex items-center gap-1.5">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Priority</label>
+        <label className="text-xs font-medium text-white/35 uppercase tracking-wide">Priority</label>
         <select
           value={priorityFilter}
           onChange={(e) => onPriorityFilterChange(e.target.value as Priority | 'all')}
           className={selectClass}
+          style={{ background: 'rgba(255,255,255,0.08)' }}
         >
           <option value="all">All</option>
           <option value="low">Low</option>
@@ -61,11 +63,12 @@ export default function TaskFilters({
       </div>
 
       <div className="flex items-center gap-1.5">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sort</label>
+        <label className="text-xs font-medium text-white/35 uppercase tracking-wide">Sort</label>
         <select
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value as SortBy)}
           className={selectClass}
+          style={{ background: 'rgba(255,255,255,0.08)' }}
         >
           <option value="created_at">Date Created</option>
           <option value="due_date">Due Date</option>
@@ -79,7 +82,7 @@ export default function TaskFilters({
             onPriorityFilterChange('all')
             onSortChange('created_at')
           }}
-          className="text-xs text-indigo-600 hover:text-indigo-500 font-medium"
+          className={clsx('text-xs text-emerald-400 hover:text-emerald-300 font-medium')}
         >
           Reset filters
         </button>

@@ -16,7 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <div className="fixed inset-0 -z-10 overflow-hidden" style={{ backgroundColor: '#0d0b1e' }}>
+          <div className="aurora-orb-1" />
+          <div className="aurora-orb-2" />
+          <div className="aurora-orb-3" />
+        </div>
+        {children}
+      </body>
     </html>
   )
 }
